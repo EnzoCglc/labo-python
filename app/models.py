@@ -1,13 +1,9 @@
 import enum
 from datetime import datetime, timezone
 
-from sqlalchemy import DateTime, Enum, ForeignKey, Index, String
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
-
-
-class Base(DeclarativeBase):
-    pass
-
+from sqlalchemy import DateTime, Enum, ForeignKey, Index, String, text
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+from app.database import Base
 
 def utcnow() -> datetime:
     return datetime.now(timezone.utc)
@@ -69,8 +65,8 @@ class Loan(Base):
             "uq_one_active_loan_per_equipment",
             "equipment_id",
             unique=True,
-            sqlite_where=(date_retour.is_(None)),
-            postgresql_where=(date_retour.is_(None)),
+            sqlite_where=text("date_retour IS NULL"),
+            postgresql_where=text("date_retour IS NULL"),
         ),
     )
 
