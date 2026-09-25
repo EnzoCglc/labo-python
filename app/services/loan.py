@@ -1,4 +1,3 @@
-from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
@@ -23,6 +22,6 @@ def create_loan(db: Session, data: LoanCreate, user_id: int) -> Loan:
         db.commit()
     except IntegrityError:
         db.rollback()
-        raise ValueError("This equipment is already loaned.")
+        raise EquipementAlreadyLoaned(data.equipment_id)
     db.refresh(loan)
     return loan

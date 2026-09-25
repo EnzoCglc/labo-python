@@ -5,12 +5,10 @@ from sqlalchemy.orm import Session
 from app import schemas
 from app.models import User
 from app.core.database import get_db
-from app.core.dependencies import get_current_user, require_manager
-
-from app.models import User
+from app.core.dependencies import get_current_user
 from app.schemas import EquipementCreate, LoanCreate
-from app.services import equipement 
-from app.services import loan 
+from app.services import equipement
+from app.services import loan
 from app.services import auth as auth_service
 
 router = APIRouter()
