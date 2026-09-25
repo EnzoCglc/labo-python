@@ -6,11 +6,12 @@ from app import schemas
 from app.models import User
 from app.core.database import get_db
 from app.core.dependencies import get_current_user, require_manager
-from app.schemas import EquipementCreate
 
+from app.models import User
+from app.schemas import EquipementCreate, LoanCreate
+from app.services import equipement 
+from app.services import loan 
 from app.services import auth as auth_service
-from app.services import equipement as equipement_service
-
 
 router = APIRouter()
 
@@ -28,11 +29,20 @@ def me(user: User = Depends(get_current_user)):
 
 @router.get("/equipment", status_code=200, tags=["equipements"], dependencies=[Depends(get_current_user)])
 def get_equipment(db: Session = Depends(get_db)):
-    return equipement_service.list_equipements(db)
+    return equipement.list_equipements(db)
 
 @router.post("/equipment", status_code=201, tags=["equipements"], dependencies=[Depends(get_current_user)])
 def post_equipment(payload: EquipementCreate, db: Session = Depends(get_db)):
     try:
-        return equipement_service.create_equipement(db, payload)
-    except equipement_service.ReferenceAlreadyExists:
+        return equipement.create_equipement(db, payload)
+    except equipement.ReferenceAlreadyExists:
         raise HTTPException(status_code=409, detail="This equipment reference already exists.",)
+
+@router.post("/loan", status_code=201, tags=["loans"])
+def post_loan(payload: LoanCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    try:
+        return loan.create_loan(db, payload, current_user.id)
+    except loan.EquipementNotFound:
+        raise HTTPException(status_code=404, detail="Equipment not found.")
+    except loan.EquipementAlreadyLoaned:
+        raise HTTPException(status_code=409, detail="This equipment is already loaned.")
