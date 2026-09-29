@@ -12,7 +12,19 @@ USERS = [
 ]
 
 EQUIPEMENTS = [
-    ("PC-001", "Ordinateur fixe Lenovo", "ordinateur")
+    ("PC-001", "Ordinateur fixe Lenovo", "ordinateur"),
+    ("PC-002", "Ordinateur fixe HP EliteDesk", "ordinateur"),
+    ("PC-003", "Portable Dell Latitude 5540", "ordinateur"),
+    ("PC-004", "Portable MacBook Pro 14", "ordinateur"),
+    ("ECR-001", "Écran Dell 24 pouces", "ecran"),
+    ("ECR-002", "Écran LG 27 pouces 4K", "ecran"),
+    ("CLV-001", "Clavier Logitech K120", "peripherique"),
+    ("SOU-001", "Souris Logitech M185", "peripherique"),
+    ("CAM-001", "Webcam Logitech C920", "peripherique"),
+    ("RPI-001", "Raspberry Pi 5", "carte-electronique"),
+    ("ARD-001", "Arduino Uno R4", "carte-electronique"),
+    ("VID-001", "Vidéoprojecteur Epson EB-W49", "audiovisuel"),
+    ("HDMI-001", "Câble HDMI 2 m", "cable"),
 ]
 
 def seed():
