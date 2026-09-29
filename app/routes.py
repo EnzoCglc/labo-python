@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 from app import schemas
 from app.models import User
 from app.core.database import get_db
-from app.core.dependencies import get_current_user
+from app.core.dependencies import get_current_user, require_manager
 from app.schemas import EquipementCreate, LoanCreate
 from app.services import equipement
 from app.services import loan
@@ -35,6 +35,13 @@ def post_equipment(payload: EquipementCreate, db: Session = Depends(get_db)):
         return equipement.create_equipement(db, payload)
     except equipement.ReferenceAlreadyExists:
         raise HTTPException(status_code=409, detail="This equipment reference already exists.",)
+
+@router.get("/equipment/{equipment_id}/history", status_code=200, response_model=list[schemas.HistoryItem], tags=["equipements"], dependencies=[Depends(require_manager)])
+def get_equipment_history(equipment_id: int, db: Session = Depends(get_db)):
+    try:
+        return equipement.get_equipement_history(db, equipment_id)
+    except equipement.EquipementNotFound:
+        raise HTTPException(status_code=404, detail="Equipment not found.")
 
 @router.post("/loans", status_code=201, response_model=schemas.LoanOut, tags=["loans"])
 def post_loan(payload: LoanCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
