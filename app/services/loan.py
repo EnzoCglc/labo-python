@@ -1,5 +1,6 @@
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
+from sqlalchemy import select
 
 from app.models import Loan, Equipement, Role, User, utcnow
 from app.schemas import LoanCreate
@@ -51,3 +52,9 @@ def return_loan(db:Session, loan_id: int, user: User):
     db.commit()
     db.refresh(loan)
     return loan
+
+def list_loans(db: Session, user: User) -> list[Loan]:
+    query = select(Loan).order_by(Loan.date_emprunt.desc())
+    if user.role != Role.gestionnaire:
+        query = query.where(Loan.user_id == user.id)
+    return list(db.scalars(query))

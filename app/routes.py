@@ -55,3 +55,7 @@ def return_loan(loan_id: int , db: Session = Depends(get_db), current_user: User
         raise HTTPException(status_code=403, detail="You can only return your own loans.")
     except loan.LoanAlreadyReturned:
         raise HTTPException(status_code=409, detail="This loan has already been returned.")
+
+@router.get("/loans", status_code=200, response_model=list[schemas.LoanOut], tags=["loans"])
+def get_loans(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    return loan.list_loans(db, current_user)
