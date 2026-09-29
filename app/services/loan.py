@@ -1,7 +1,7 @@
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
-from app.models import Loan, Equipement
+from app.models import Loan, Equipement, Role, User, utcnow
 from app.schemas import LoanCreate
 
 class EquipementNotFound(Exception):
@@ -10,6 +10,15 @@ class EquipementNotFound(Exception):
 
 class EquipementAlreadyLoaned(Exception):
     """This equipment is already loaned."""
+
+class LoanNotFound(Exception):
+    """This loan does not exist."""
+
+class NotLoanOwner(Exception):
+    """This loan belongs to another user."""
+
+class LoanAlreadyReturned(Exception):
+    """This loan has already been returned."""
 
 def create_loan(db: Session, data: LoanCreate, user_id: int) -> Loan:
     
@@ -24,4 +33,21 @@ def create_loan(db: Session, data: LoanCreate, user_id: int) -> Loan:
         db.rollback()
         raise EquipementAlreadyLoaned(data.equipment_id)
     db.refresh(loan)
+    return loan
+
+def return_loan(db:Session, loan_id: int, user: User):
+    
+    loan = db.get(Loan, loan_id)
+    if loan is None:
+        raise LoanNotFound(loan_id)
+    
+    if user.role != Role.gestionnaire and loan.user_id != user.id:
+        raise NotLoanOwner(loan_id)
+    
+    if loan.date_retour is not None:
+        raise LoanAlreadyReturned(loan_id)
+    
+    loan.date_retour = utcnow()
+    db.commit()
+    db.refesh(loan)
     return loan

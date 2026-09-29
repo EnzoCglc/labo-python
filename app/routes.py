@@ -36,7 +36,7 @@ def post_equipment(payload: EquipementCreate, db: Session = Depends(get_db)):
     except equipement.ReferenceAlreadyExists:
         raise HTTPException(status_code=409, detail="This equipment reference already exists.",)
 
-@router.post("/loan", status_code=201, tags=["loans"])
+@router.post("/loans", status_code=201, tags=["loans"])
 def post_loan(payload: LoanCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     try:
         return loan.create_loan(db, payload, current_user.id)
@@ -44,3 +44,14 @@ def post_loan(payload: LoanCreate, db: Session = Depends(get_db), current_user: 
         raise HTTPException(status_code=404, detail="Equipment not found.")
     except loan.EquipementAlreadyLoaned:
         raise HTTPException(status_code=409, detail="This equipment is already loaned.")
+  
+@router.patch("/loans/{loan_id}/return", response_model=schemas.LoanOut, tags=["loans"])
+def return_loan(loan_id: int , db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    try:
+        return loan.return_loan(db, loan_id, current_user)
+    except loan.LoanNotFound:
+         raise HTTPException(status_code=404, detail="Loan not found.")
+    except loan.NotLoanOwner:
+        raise HTTPException(status_code=403, detail="You can only return your own loans.")
+    except loan.LoanAlreadyReturned:
+        raise HTTPException(status_code=409, detail="This loan has already been returned.")
