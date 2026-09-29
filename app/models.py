@@ -42,6 +42,10 @@ class Equipement(Base):
         order_by="Loan.date_emprunt.desc()",
     )
 
+    @property
+    def is_available(self) -> bool:
+        return not any(loan.date_retour is None for loan in self.loans)
+
     def __repr__(self) -> str:
         return f"<Equipement {self.nom} ({self.reference})>"
 
