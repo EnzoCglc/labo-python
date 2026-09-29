@@ -49,5 +49,5 @@ def return_loan(db:Session, loan_id: int, user: User):
     
     loan.date_retour = utcnow()
     db.commit()
-    db.refesh(loan)
+    db.refresh(loan)
     return loan
