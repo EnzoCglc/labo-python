@@ -25,18 +25,18 @@ def login(form:OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_
 def me(user: User = Depends(get_current_user)):
     return {"id": user.id, "username": user.username, "role": user.role}
 
-@router.get("/equipment", status_code=200, tags=["equipements"], dependencies=[Depends(get_current_user)])
+@router.get("/equipment", status_code=200, response_model=list[schemas.EquipementOut], tags=["equipements"], dependencies=[Depends(get_current_user)])
 def get_equipment(db: Session = Depends(get_db)):
     return equipement.list_equipements(db)
 
-@router.post("/equipment", status_code=201, tags=["equipements"], dependencies=[Depends(get_current_user)])
+@router.post("/equipment", status_code=201, response_model=schemas.EquipementOut, tags=["equipements"], dependencies=[Depends(get_current_user)])
 def post_equipment(payload: EquipementCreate, db: Session = Depends(get_db)):
     try:
         return equipement.create_equipement(db, payload)
     except equipement.ReferenceAlreadyExists:
         raise HTTPException(status_code=409, detail="This equipment reference already exists.",)
 
-@router.post("/loans", status_code=201, tags=["loans"])
+@router.post("/loans", status_code=201, response_model=schemas.LoanOut, tags=["loans"])
 def post_loan(payload: LoanCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     try:
         return loan.create_loan(db, payload, current_user.id)
